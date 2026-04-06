@@ -1,32 +1,52 @@
-let currentState = welcoming;
+// src/Order.js
+let order = { item: "", size: "", spice: "", upsell: "" };
 
 export function handleInput(sInput) {
   return currentState(sInput);
 }
 
-export function clearInput(){
-  currentState = welcoming;  
+export function clearInput() {
+  currentState = welcoming;
+  order = { item: "", size: "", spice: "", upsell: "" };
 }
 
-function welcoming() {
-  let aReturn = [];
-  currentState = reserving;
-  aReturn.push("Welcome to Rich's Acton Rapid Test.");
-  aReturn.push("Would you like to reserve a rapid test kit?");
-  return aReturn;
+function welcoming(sInput) {
+  currentState = choosingItem;
+  return [
+    "Welcome to Fuego's Flame Grill!", 
+    "What are you craving? 'Sandwich' or 'Bone-in'?"
+  ];
 }
 
-function reserving(sInput) {
-  let aReturn = [];
-  currentState = welcoming
-  if (sInput.toLowerCase().startsWith('y')) {
-    aReturn.push(`Your rapid test is reserved`);
-    let d = new Date();
-    d.setMinutes(d.getMinutes() + 120);
-    aReturn.push(`Please pick it up at 123 Tidy St., Acton before ${d.toTimeString()}`);
+function choosingItem(sInput) {
+  if (sInput.toLowerCase().includes("sandwich")) {
+    order.item = "Chicken Sandwich";
+  } else if (sInput.toLowerCase().includes("bone")) {
+    order.item = "Bone-in Chicken";
   } else {
-    aReturn.push("Thanks for trying our reservation system");
-    aReturn.push("Maybe next time");
+    return ["Please choose 'Sandwich' or 'Bone-in'."];
   }
-  return aReturn;
+  currentState = choosingSize;
+  return [`A ${order.item}. What size? (Regular/Large)`];
 }
+
+function choosingSize(sInput) {
+  order.size = sInput;
+  currentState = choosingSpice;
+  return ["How spicy? (Lemon Herb, Medium, or Hot)"];
+}
+
+function choosingSpice(sInput) {
+  order.spice = sInput;
+  currentState = choosingUpsell;
+  return ["Add Peri-Peri Fries for $3? (Yes/No)"];
+}
+
+function choosingUpsell(sInput) {
+  const isWithFries = sInput.toLowerCase().startsWith('y');
+  const receipt = `Order confirmed: ${order.size} ${order.item} (${order.spice}) ${isWithFries ? 'with' : 'without'} fries.`;
+  clearInput(); 
+  return [receipt, "Your meal will be ready soon!", "ORDER_COMPLETE"]; 
+}
+
+let currentState = welcoming;
