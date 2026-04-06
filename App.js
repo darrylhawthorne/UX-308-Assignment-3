@@ -1,1 +1,2 @@
-export { default } from './src/components/App.jsx';
+import App from './src/components/App.jsx';
+export default App;
